@@ -1,0 +1,3 @@
+bucket = "taskflow-terraform-state-REPLACE_ME"
+key    = "terraform.tfstate"
+region = "us-east-1"

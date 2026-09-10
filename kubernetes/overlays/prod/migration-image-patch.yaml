@@ -1,0 +1,11 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: taskflow-migration
+  namespace: taskflow
+spec:
+  template:
+    spec:
+      containers:
+        - name: migration
+          image: taskflow-backend:latest

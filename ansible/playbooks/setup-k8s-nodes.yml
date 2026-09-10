@@ -1,0 +1,7 @@
+---
+- name: Dedicated Kubernetes Prerequisites Node Setup Playbook
+  hosts: k8s_cluster
+  become: yes
+  roles:
+    - common
+    - k8s_prep

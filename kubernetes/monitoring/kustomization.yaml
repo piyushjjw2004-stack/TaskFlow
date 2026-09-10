@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: taskflow
+
+# Helm is the canonical production deployment path and owns the ServiceMonitor.
+# Kustomize retains the alert rules for local/teaching deployments.
+resources:
+  - prometheusrule.yaml

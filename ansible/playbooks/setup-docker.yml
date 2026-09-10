@@ -1,0 +1,7 @@
+---
+- name: Dedicated Docker Installation Playbook
+  hosts: all
+  become: yes
+  roles:
+    - common
+    - docker

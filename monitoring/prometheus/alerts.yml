@@ -1,0 +1,29 @@
+groups:
+  - name: taskflow_alerts
+    rules:
+      - alert: TaskFlowServiceDown
+        expr: up{job="taskflow-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "TaskFlow backend service is unreachable"
+          description: "TaskFlow backend target has been down for more than 1 minute."
+
+      - alert: HighErrorRate
+        expr: sum(rate(taskflow_http_requests_total{status_code=~"5.."}[5m])) / clamp_min(sum(rate(taskflow_http_requests_total[5m])), 1e-9) * 100 > 5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High HTTP 5xx error rate detected"
+          description: "HTTP 5xx errors exceed 5% of total requests over the last 5 minutes."
+
+      - alert: HighRequestLatency
+        expr: histogram_quantile(0.95, sum(rate(taskflow_http_request_duration_seconds_bucket[5m])) by (le)) > 1.5
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High 95th percentile request latency"
+          description: "95th percentile request latency exceeds 1.5 seconds over the last 5 minutes."

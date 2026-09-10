@@ -1,0 +1,36 @@
+# Environment / secrets
+.env
+*.env
+!.env.example
+backend/.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+# Node
+node_modules/
+frontend/dist/
+.npm/
+
+# Local databases / state
+*.db
+*.sqlite3
+*.sqlite
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

@@ -1,0 +1,18 @@
+{{- if .Values.monitoring.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "taskflow.fullname" . }}-backend
+  labels:
+    release: kube-prometheus-stack
+    {{- include "taskflow.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "taskflow.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: backend
+  endpoints:
+    - port: http
+      path: /api/metrics
+      interval: 15s
+{{- end }}

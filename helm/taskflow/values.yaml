@@ -1,0 +1,95 @@
+global:
+  environment: development
+
+namespace: taskflow
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+backend:
+  replicaCount: 2
+  image:
+    repository: taskflow-backend
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  service:
+    name: backend
+    type: ClusterIP
+    port: 8000
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 150m
+      memory: 256Mi
+
+frontend:
+  replicaCount: 2
+  image:
+    repository: taskflow-frontend
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  service:
+    name: frontend
+    type: ClusterIP
+    port: 80
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+database:
+  enabled: true
+  image: postgres:15-alpine
+  storage: 10Gi
+  storageClass: ""
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  hosts:
+    - host: taskflow.local
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: backend
+        - path: /
+          pathType: Prefix
+          service: frontend
+
+config:
+  postgresHost: postgres
+  postgresPort: 5432
+  postgresUser: taskflow
+  postgresDb: taskflow_db
+
+secret:
+  create: false
+  existingSecret: taskflow-secret
+  postgresPassword: ""
+  secretKey: ""
+
+monitoring:
+  serviceMonitor:
+    enabled: true

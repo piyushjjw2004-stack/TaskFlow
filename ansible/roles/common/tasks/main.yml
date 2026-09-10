@@ -1,0 +1,25 @@
+---
+- name: Update apt cache and upgrade system packages
+  apt:
+    update_cache: yes
+    upgrade: dist
+    cache_valid_time: 3600
+
+- name: Install baseline system utility packages
+  apt:
+    name:
+      - curl
+      - wget
+      - git
+      - htop
+      - ufw
+      - apt-transport-https
+      - ca-certificates
+      - gnupg
+      - lsb-release
+      - software-properties-common
+    state: present
+
+- name: Set system timezone to UTC
+  timezone:
+    name: UTC
