@@ -6,7 +6,11 @@ variable "aws_region" {
 variable "admin_allowed_cidrs" {
   description = "Administrator CIDRs allowed to access the EKS API"
   type        = list(string)
-  default     = ["203.0.113.0/32"]
+
+  validation {
+    condition     = length(var.admin_allowed_cidrs) > 0
+    error_message = "admin_allowed_cidrs must contain at least one CIDR block."
+  }
 }
 
 variable "github_deploy_role_arn" {
