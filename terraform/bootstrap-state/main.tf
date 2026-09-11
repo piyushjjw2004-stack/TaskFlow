@@ -1,5 +1,6 @@
 terraform {
   required_version = ">= 1.10.0"
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -23,16 +24,31 @@ resource "aws_s3_bucket" "state" {
 
 resource "aws_s3_bucket_versioning" "state" {
   bucket = aws_s3_bucket.state.id
+
   versioning_configuration {
     status = "Enabled"
   }
 }
 
+resource "aws_kms_key" "state" {
+  description             = "KMS key for TaskFlow Terraform state bucket"
+  enable_key_rotation     = true
+  deletion_window_in_days = 30
+
+  tags = {
+    Name        = "${var.bucket_name}-kms"
+    Environment = "bootstrap"
+    ManagedBy   = "Terraform"
+  }
+}
+
 resource "aws_s3_bucket_server_side_encryption_configuration" "state" {
   bucket = aws_s3_bucket.state.id
+
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+      sse_algorithm     = "aws:kms"
+      kms_master_key_id = aws_kms_key.state.arn
     }
   }
 }
