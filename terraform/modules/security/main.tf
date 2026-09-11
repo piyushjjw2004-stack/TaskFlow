@@ -3,14 +3,6 @@ resource "aws_security_group" "eks_cluster" {
   description = "Security group for the EKS control plane"
   vpc_id      = var.vpc_id
 
-  ingress {
-    description     = "Allow Kubernetes API traffic from EKS worker nodes"
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    security_groups = [aws_security_group.eks_nodes.id]
-  }
-
   egress {
     description = "Allow EKS control plane egress"
     from_port   = 0
@@ -38,14 +30,6 @@ resource "aws_security_group" "eks_nodes" {
   }
 
   ingress {
-    description     = "Allow EKS control plane to reach worker node ports"
-    from_port       = 1025
-    to_port         = 65535
-    protocol        = "tcp"
-    security_groups = [aws_security_group.eks_cluster.id]
-  }
-
-  ingress {
     description = "Allow inbound HTTPS traffic from VPC"
     from_port   = 443
     to_port     = 443
@@ -64,6 +48,26 @@ resource "aws_security_group" "eks_nodes" {
   tags = {
     Name = "${var.environment}-eks-nodes-sg"
   }
+}
+
+resource "aws_security_group_rule" "cluster_from_nodes" {
+  type                     = "ingress"
+  security_group_id        = aws_security_group.eks_cluster.id
+  description              = "Allow Kubernetes API traffic from EKS worker nodes"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.eks_nodes.id
+}
+
+resource "aws_security_group_rule" "nodes_from_cluster" {
+  type                     = "ingress"
+  security_group_id        = aws_security_group.eks_nodes.id
+  description              = "Allow EKS control plane to reach worker node ports"
+  from_port                = 1025
+  to_port                  = 65535
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.eks_cluster.id
 }
 
 resource "aws_ecr_repository" "backend" {
