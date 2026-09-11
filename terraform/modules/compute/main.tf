@@ -18,12 +18,37 @@ resource "aws_iam_role_policy_attachment" "cluster_AmazonEKSClusterPolicy" {
   role       = aws_iam_role.cluster.name
 }
 
+resource "aws_kms_key" "eks_secrets" {
+  description             = "KMS key for ${var.environment} TaskFlow EKS Kubernetes secrets"
+  enable_key_rotation     = true
+  deletion_window_in_days = 30
+
+  tags = {
+    Name        = "${var.environment}-taskflow-eks-secrets"
+    Environment = var.environment
+    ManagedBy   = "Terraform"
+  }
+}
+
+resource "aws_kms_alias" "eks_secrets" {
+  name          = "alias/${var.environment}-taskflow-eks-secrets"
+  target_key_id = aws_kms_key.eks_secrets.key_id
+}
+
 resource "aws_eks_cluster" "main" {
   name     = var.cluster_name
   role_arn = aws_iam_role.cluster.arn
 
   access_config {
     authentication_mode = "API_AND_CONFIG_MAP"
+  }
+
+  encryption_config {
+    provider {
+      key_arn = aws_kms_key.eks_secrets.arn
+    }
+
+    resources = ["secrets"]
   }
 
   vpc_config {
@@ -67,7 +92,6 @@ resource "aws_iam_role_policy_attachment" "node_AmazonEC2ContainerRegistryReadOn
   role       = aws_iam_role.node_group.name
 }
 
-
 resource "aws_iam_role_policy_attachment" "node_AmazonEBSCSIDriverPolicy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
   role       = aws_iam_role.node_group.name
@@ -86,6 +110,7 @@ resource "aws_launch_template" "node_group" {
 
   tag_specifications {
     resource_type = "instance"
+
     tags = {
       Name = "${var.environment}-taskflow-eks-node"
     }
