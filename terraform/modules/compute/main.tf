@@ -27,8 +27,8 @@ resource "aws_eks_cluster" "main" {
   }
 
   vpc_config {
-    subnet_ids         = concat(var.public_subnet_ids, var.private_subnet_ids)
-    security_group_ids = [var.cluster_security_group_id]
+    subnet_ids          = concat(var.public_subnet_ids, var.private_subnet_ids)
+    security_group_ids  = [var.cluster_security_group_id]
     public_access_cidrs = var.admin_allowed_cidrs
   }
 
@@ -144,7 +144,7 @@ resource "aws_eks_addon" "ebs_csi" {
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "PRESERVE"
 
-  depends_on                  = [
+  depends_on = [
     aws_iam_role_policy_attachment.node_AmazonEBSCSIDriverPolicy,
     aws_eks_node_group.main,
   ]

@@ -12,6 +12,6 @@ admin_allowed_cidrs = ["203.0.113.0/32"]
 # Optional: set the pre-created GitHub Actions OIDC deployment role ARN.
 github_deploy_role_arn = ""
 
-enable_monthly_budget       = false
-monthly_budget_usd          = 100
-budget_notification_email   = ""
+enable_monthly_budget     = false
+monthly_budget_usd        = 100
+budget_notification_email = ""

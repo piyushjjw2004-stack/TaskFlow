@@ -153,9 +153,9 @@ resource "aws_ecr_lifecycle_policy" "backend" {
         rulePriority = 2
         description  = "Retain the latest 20 immutable release images"
         selection = {
-          tagStatus    = "tagged"
-          countType    = "imageCountMoreThan"
-          countNumber  = 20
+          tagStatus   = "tagged"
+          countType   = "imageCountMoreThan"
+          countNumber = 20
         }
         action = { type = "expire" }
       }
