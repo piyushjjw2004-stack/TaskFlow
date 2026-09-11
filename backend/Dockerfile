@@ -15,6 +15,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
+RUN pip install --no-cache-dir --upgrade \
+    "setuptools>=80.10.2" \
+    "wheel>=0.46.2"
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
@@ -35,6 +39,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
+RUN pip install --no-cache-dir --upgrade \
+    "setuptools>=80.10.2" \
+    "wheel>=0.46.2"
+        
 # Copy installed python dependencies from builder
 COPY --from=builder /install /install
 
