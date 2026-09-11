@@ -14,10 +14,12 @@ RUN npm run build
 # ==========================================
 # Stage 2: Serve Production Assets via Nginx
 # ==========================================
-FROM nginxinc/nginx-unprivileged:1.27-alpine AS runner
+FROM nginxinc/nginx-unprivileged:1.30.4-alpine-slim AS runner
 
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+USER 101
 
 EXPOSE 8080
 
