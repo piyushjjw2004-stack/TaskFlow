@@ -35,6 +35,11 @@ resource "aws_kms_alias" "eks_secrets" {
   target_key_id = aws_kms_key.eks_secrets.key_id
 }
 
+# Public EKS API access is required for GitHub-hosted CI/CD runners.
+# Access is restricted at runtime to administrator CIDRs supplied through
+# TF_VAR_admin_allowed_cidrs / the GitHub ADMIN_ALLOWED_CIDRS secret.
+# 0.0.0.0/0 is not permitted.
+#trivy:ignore:AVD-AWS-0040
 resource "aws_eks_cluster" "main" {
   name     = var.cluster_name
   role_arn = aws_iam_role.cluster.arn
