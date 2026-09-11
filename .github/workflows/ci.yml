@@ -83,6 +83,7 @@ jobs:
   infrastructure-validation:
     name: Validate Terraform, Helm & Kubernetes Manifests
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -104,12 +105,31 @@ jobs:
       - name: Terraform Workspace Demo Validation
         working-directory: terraform/workspaces
         run: |
+          # Validate the real workspace configuration without contacting AWS/S3.
           terraform init -backend=false
           terraform validate
+
+          # Test Terraform workspace mechanics using an isolated local fixture.
+          WORKSPACE_TEST_DIR=$(mktemp -d)
+
+          cat > "$WORKSPACE_TEST_DIR/main.tf" <<'EOF'
+          terraform {
+            required_version = ">= 1.10.0"
+          }
+
+          output "workspace" {
+            value = terraform.workspace
+          }
+          EOF
+
+          cd "$WORKSPACE_TEST_DIR"
+
+          terraform init
           terraform workspace new dev
           terraform workspace new prod
           terraform workspace select prod
-          terraform workspace show
+
+          test "$(terraform workspace show)" = "prod"
 
       - name: Set up Helm
         uses: azure/setup-helm@v4
@@ -120,7 +140,12 @@ jobs:
         run: helm lint ./helm/taskflow -f ./helm/taskflow/values-prod.yaml
 
       - name: Helm Render
-        run: helm template taskflow ./helm/taskflow -f ./helm/taskflow/values-prod.yaml --set secret.create=true --set secret.postgresPassword=ci-only-password --set secret.secretKey=ci-only-secret-key-012345678901234567890123456789
+        run: |
+          helm template taskflow ./helm/taskflow \
+            -f ./helm/taskflow/values-prod.yaml \
+            --set secret.create=true \
+            --set secret.postgresPassword=ci-only-password \
+            --set secret.secretKey=ci-only-secret-key-012345678901234567890123456789
 
       - name: Kustomize Build
         run: kubectl kustomize kubernetes/overlays/prod >/tmp/taskflow-k8s.yaml
