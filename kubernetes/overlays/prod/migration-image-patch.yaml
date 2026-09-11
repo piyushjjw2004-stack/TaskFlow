@@ -1,11 +1,26 @@
 apiVersion: batch/v1
 kind: Job
+
 metadata:
   name: taskflow-migration
   namespace: taskflow
+
 spec:
   template:
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        seccompProfile:
+          type: RuntimeDefault
+
       containers:
         - name: migration
           image: taskflow-backend:latest
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL

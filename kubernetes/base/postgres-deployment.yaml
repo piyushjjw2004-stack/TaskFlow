@@ -13,7 +13,9 @@ spec:
       targetPort: 5432
       name: postgres
   type: ClusterIP
+
 ---
+
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -32,27 +34,47 @@ spec:
       labels:
         app: postgres
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
+
       containers:
         - name: postgres
           image: postgres:15-alpine
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
           ports:
             - containerPort: 5432
+
           env:
             - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
                   name: taskflow-config
                   key: POSTGRES_DB
+
             - name: POSTGRES_USER
               valueFrom:
                 configMapKeyRef:
                   name: taskflow-config
                   key: POSTGRES_USER
+
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: taskflow-secret
                   key: POSTGRES_PASSWORD
+
           resources:
             requests:
               cpu: 100m
@@ -60,24 +82,39 @@ spec:
             limits:
               cpu: 500m
               memory: 512Mi
+
           readinessProbe:
             exec:
-              command: ["pg_isready", "-U", "taskflow", "-d", "taskflow_db"]
+              command:
+                - pg_isready
+                - -U
+                - taskflow
+                - -d
+                - taskflow_db
             initialDelaySeconds: 5
             periodSeconds: 10
+
           livenessProbe:
             exec:
-              command: ["pg_isready", "-U", "taskflow", "-d", "taskflow_db"]
+              command:
+                - pg_isready
+                - -U
+                - taskflow
+                - -d
+                - taskflow_db
             initialDelaySeconds: 15
             periodSeconds: 20
+
           volumeMounts:
             - name: postgres-data
               mountPath: /var/lib/postgresql/data
+
   volumeClaimTemplates:
     - metadata:
         name: postgres-data
       spec:
-        accessModes: ["ReadWriteOnce"]
+        accessModes:
+          - ReadWriteOnce
         resources:
           requests:
             storage: 10Gi
