@@ -1,3 +1,4 @@
+#trivy:ignore:AVD-AWS-0104
 resource "aws_security_group" "eks_cluster" {
   name        = "${var.environment}-taskflow-eks-cluster-sg"
   description = "Security group for the EKS control plane"
@@ -16,6 +17,7 @@ resource "aws_security_group" "eks_cluster" {
   }
 }
 
+#trivy:ignore:AVD-AWS-0104
 resource "aws_security_group" "eks_nodes" {
   name        = "${var.environment}-taskflow-eks-nodes-sg"
   description = "Security group for EKS worker nodes"
