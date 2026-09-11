@@ -6,8 +6,6 @@ node_instance_types = ["t3.large"]
 min_node_count      = 3
 max_node_count      = 10
 
-# Replace this TEST-NET placeholder with the administrator public IP/CIDR before a real EKS deployment.
-admin_allowed_cidrs = ["203.0.113.0/32"]
 
 # Optional: set the pre-created GitHub Actions OIDC deployment role ARN.
 github_deploy_role_arn = ""

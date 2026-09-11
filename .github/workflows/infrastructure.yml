@@ -40,6 +40,7 @@ jobs:
       AWS_REGION: us-east-1
       TF_ENVIRONMENT: ${{ github.event.inputs.environment || 'dev' }}
       TF_ACTION: ${{ github.event.inputs.action || 'plan' }}
+      ADMIN_ALLOWED_CIDRS: ${{ secrets.ADMIN_ALLOWED_CIDRS }}
 
     steps:
       - name: Checkout Repository
@@ -76,9 +77,13 @@ jobs:
 
       - name: Terraform Plan
         working-directory: terraform/environments/${{ env.TF_ENVIRONMENT }}
+        env:
+          TF_VAR_admin_allowed_cidrs: ${{ env.ADMIN_ALLOWED_CIDRS }}
         run: terraform plan -out=tfplan
 
       - name: Terraform Apply (manual dispatch only)
         if: github.event_name == 'workflow_dispatch' && env.TF_ACTION == 'apply'
         working-directory: terraform/environments/${{ env.TF_ENVIRONMENT }}
+        env:
+          TF_VAR_admin_allowed_cidrs: ${{ env.ADMIN_ALLOWED_CIDRS }}
         run: terraform apply -auto-approve tfplan
