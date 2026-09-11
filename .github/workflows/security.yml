@@ -12,12 +12,13 @@ jobs:
   fs-security-scan:
     name: Trivy Filesystem & Dependency Vulnerability Scan
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Run Trivy FS Vulnerability Scanner
-        uses: aquasecurity/trivy-action@v0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
@@ -30,6 +31,7 @@ jobs:
   container-security-scan:
     name: Trivy Container Image Security Scan
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -42,7 +44,7 @@ jobs:
           docker build -t taskflow-backend:security-scan ./backend
 
       - name: Scan Backend Container with Trivy
-        uses: aquasecurity/trivy-action@v0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: 'taskflow-backend:security-scan'
           format: 'table'
@@ -55,7 +57,7 @@ jobs:
           docker build -t taskflow-frontend:security-scan ./frontend
 
       - name: Scan Frontend Container with Trivy
-        uses: aquasecurity/trivy-action@v0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: 'taskflow-frontend:security-scan'
           format: 'table'
