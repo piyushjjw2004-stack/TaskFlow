@@ -2,11 +2,12 @@ name: TaskFlow Continuous Integration (CI)
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 jobs:
+
   backend-test:
     name: Backend Linting & Pytest Suite
     runs-on: ubuntu-latest
@@ -137,7 +138,8 @@ jobs:
           version: v3.16.4
 
       - name: Helm Lint
-        run: helm lint ./helm/taskflow -f ./helm/taskflow/values-prod.yaml
+        run: |
+          helm lint ./helm/taskflow -f ./helm/taskflow/values-prod.yaml
 
       - name: Helm Render
         run: |
@@ -148,7 +150,35 @@ jobs:
             --set secret.secretKey=ci-only-secret-key-012345678901234567890123456789
 
       - name: Kustomize Build
-        run: kubectl kustomize kubernetes/overlays/prod >/tmp/taskflow-k8s.yaml
+        run: |
+          kubectl kustomize kubernetes/overlays/prod >/tmp/taskflow-k8s.yaml
+
+  ansible-validation:
+    name: Validate Ansible Playbooks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Ansible
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible
+
+      - name: Validate Ansible Playbook Syntax
+        working-directory: ansible
+        env:
+          ANSIBLE_CONFIG: ansible.cfg
+        run: |
+          ansible-playbook --syntax-check playbooks/site.yml
+          ansible-playbook --syntax-check playbooks/setup-docker.yml
+          ansible-playbook --syntax-check playbooks/setup-k8s-nodes.yml
 
   docker-build-check:
     name: Validate Docker Multi-Stage Image Builds
