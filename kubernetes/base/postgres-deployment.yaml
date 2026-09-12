@@ -15,7 +15,6 @@ spec:
   type: ClusterIP
 
 ---
-
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -26,13 +25,16 @@ metadata:
 spec:
   serviceName: postgres
   replicas: 1
+
   selector:
     matchLabels:
       app: postgres
+
   template:
     metadata:
       labels:
         app: postgres
+
     spec:
       securityContext:
         runAsNonRoot: true
@@ -41,6 +43,36 @@ spec:
         fsGroup: 999
         seccompProfile:
           type: RuntimeDefault
+
+      initContainers:
+        - name: postgres-volume-permissions
+          image: postgres:15-alpine
+
+          command:
+            - sh
+            - -c
+            - |
+              chown -R 999:999 /var/lib/postgresql/data
+              chmod 700 /var/lib/postgresql/data
+
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            runAsNonRoot: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              add:
+                - CHOWN
+                - FOWNER
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
+
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
 
       containers:
         - name: postgres
@@ -108,6 +140,19 @@ spec:
           volumeMounts:
             - name: postgres-data
               mountPath: /var/lib/postgresql/data
+
+            - name: postgres-run
+              mountPath: /var/run/postgresql
+
+            - name: postgres-tmp
+              mountPath: /tmp
+
+      volumes:
+        - name: postgres-run
+          emptyDir: {}
+
+        - name: postgres-tmp
+          emptyDir: {}
 
   volumeClaimTemplates:
     - metadata:
