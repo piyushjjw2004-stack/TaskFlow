@@ -6,6 +6,7 @@ namespace: taskflow-dev
 resources:
   - namespace.yaml
   - ../../base
+  - prometheusrule.yaml
 
 patches:
   - target:
@@ -15,6 +16,7 @@ patches:
       - op: replace
         path: /spec/replicas
         value: 1
+
   - target:
       kind: Deployment
       name: frontend
