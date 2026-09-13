@@ -1,26 +1,89 @@
 # TaskFlow Final Capstone Status
 
-This repository is structured to satisfy the internship capstone requirements across Weeks 1–8.
+## Final Status
 
-## Coverage
+TaskFlow Weeks 1–8 implementation and available runtime/CI validation are complete.
 
-- Week 1: DevOps/CALMS, branching/PR workflow, GitOps-aligned declarative practices
-- Week 2: Linux/Bash, Docker images, networking, volumes
-- Week 3: Docker Compose, GitHub Actions CI/CD
-- Week 4: secure containers, Trivy HIGH/CRITICAL gates, Terraform fundamentals
-- Week 5: Terraform modules, S3 remote state and locking, workspaces, Ansible roles/playbooks
-- Week 6: Kubernetes, Ingress, Helm, Kustomize, HPA, persistent PostgreSQL, migration Job
-- Week 7: Prometheus, Grafana, metrics-server, scaling, alerts, SLI/SLO/error budget, self-healing
-- Week 8: integrated CI/CD, ECR, EKS/IaC, DevSecOps, FinOps controls, AIOps-assisted triage
+The project demonstrates the DevOps internship curriculum through Git/GitHub, Linux, Docker, Docker Compose, CI/CD, security scanning, Terraform, Ansible, Kubernetes, Helm, Kustomize, Prometheus, Grafana, HPA, self-healing, FinOps and AIOps-assisted incident triage.
 
-## Architecture decision
+## Week-by-Week Status
 
-Terraform is the infrastructure pipeline; GitHub Actions deploys application releases to the existing EKS cluster. This avoids running `terraform apply` on every application commit. Helm is the canonical production application deployment path; Kustomize is retained for declarative dev/teaching deployments.
+| Week | Area | Status |
+| --- | --- | --- |
+| Week 1 | DevOps, CALMS, Git, branching, PR workflow, GitOps-aligned practices | ✅ Complete |
+| Week 2 | Linux/Bash, Docker, networking and volumes | ✅ Complete |
+| Week 3 | Docker Compose, GitHub Actions and CI/CD | ✅ Complete |
+| Week 4 | Secure Docker, Trivy and Terraform | ✅ Complete |
+| Week 5 | Terraform modules, workspaces, remote-state configuration and Ansible | ✅ Complete |
+| Week 6 | Kubernetes, Helm, Kustomize, Ingress, HPA, persistence and migrations | ✅ Complete |
+| Week 7 | Prometheus, Grafana, metrics-server, alerts, SRE concepts and self-healing | ✅ Complete |
+| Week 8 | Integrated CI/CD, security, FinOps and AIOps | ✅ Complete |
 
-## AIOps boundary
+## Runtime Validation
 
-The repository implements deterministic alert triage suggestions and a human-approval boundary. It does not falsely claim that a rule-based script is an autonomous AI remediation system.
+### Docker Compose
 
-## Before grading
+Local Docker Compose runtime was validated successfully.
 
-Run `docs/runtime-validation.md` in a Linux environment and record evidence for CI, Trivy, Terraform, Helm/Kubernetes, Prometheus/Grafana, HPA and self-healing. AWS credentials, GitHub OIDC, remote-state bucket and cluster access are environment prerequisites, not repository secrets.
+Validated:
+
+- PostgreSQL
+- Backend
+- Frontend
+- Health checks
+- Application connectivity
+- Task creation
+- Search/filtering
+- Status transitions
+- Persistence after refresh
+
+### Kubernetes
+
+Docker Desktop Kubernetes was used for live local runtime validation.
+
+Validated:
+
+- Backend Deployment
+- Frontend Deployment
+- PostgreSQL StatefulSet
+- PersistentVolumeClaim
+- Services
+- Database migration job
+- Ingress
+- Metrics Server
+- Horizontal Pod Autoscaler
+- Kustomize dev overlay
+
+The TaskFlow frontend was successfully accessed through Kubernetes Ingress.
+
+### Kubernetes Reliability
+
+The backend HPA reported live CPU and memory metrics.
+
+A backend pod was deliberately deleted and Kubernetes automatically recreated a healthy replacement, demonstrating workload self-healing.
+
+### Observability
+
+Prometheus successfully scraped TaskFlow backend metrics through a ServiceMonitor.
+
+Grafana successfully displayed the TaskFlow dashboard with:
+
+- HTTP throughput
+- P95 request latency
+- HTTP 5xx error rate
+- Registered active users
+
+TaskFlow alert rules were deployed for:
+
+- Backend availability
+- High error rate
+- High latency
+
+### Security
+
+The patched backend container image was scanned with Trivy.
+
+The local HIGH/CRITICAL scan reported:
+
+```text
+Vulnerabilities: 0
